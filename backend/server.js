@@ -1,10 +1,13 @@
-import express from "express";
+import express, { json } from "express";
 import dotenv from "dotenv";
 import authRoutes from "./routes/auth.route.js";
 import dbconnect from "./utils/dbconnect.js";
 dotenv.config();
 
 const app = express();
+
+//middleware
+app.use(express.json()); //to parse req.body
 
 //routes
 app.use("/api/auth", authRoutes);
