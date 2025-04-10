@@ -25,6 +25,12 @@ export const signup = async (req, res) => {
       return res.status(400).json({ error: "Email is already taken." });
     }
 
+    if (password.length < 6) {
+      return res
+        .status(400)
+        .json({ errro: "Password must be at least 6 characters" });
+    }
+
     //hash password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
@@ -63,7 +69,6 @@ export const login = async (req, res) => {
 
     const user = await User.findOne({ username });
     const isPassword = await bcrypt.compare(password, user?.password || "");
-    console.log(isPassword);
 
     if (!user || !isPassword) {
       return res.status(400).json({ error: "Invalid username or password" });
