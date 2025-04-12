@@ -158,7 +158,7 @@ export const updateUser = async (req, res) => {
 
     return res.status(200).json(user);
   } catch (error) {
-    console.log("Error in updateUser: ", error.message);
+    console.log("Error in updateUser controller: ", error.message);
     res.status(500).json({ error: error.message });
   }
 };
