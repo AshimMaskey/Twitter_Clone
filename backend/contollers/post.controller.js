@@ -97,10 +97,12 @@ export const likeUnlikePost = async (req, res) => {
     if (isLiked) {
       //unlike function
       await Post.findByIdAndUpdate(postId, { $pull: { likes: userId } });
+      await User.findByIdAndUpdate(userId, { $pull: { likedPosts: postId } });
       res.status(200).json({ message: "Post unliked successfully" });
     } else {
       //like function
       await Post.findByIdAndUpdate(postId, { $push: { likes: userId } });
+      await User.findByIdAndUpdate(userId, { $push: { likedPosts: postId } });
       await Notification.create({
         to: post.user,
         from: userId,
@@ -110,6 +112,51 @@ export const likeUnlikePost = async (req, res) => {
     }
   } catch (error) {
     console.log("Error in likeUnlikePost controller: ", error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const getAllPosts = async (req, res) => {
+  try {
+    const posts = await Post.find()
+      .sort({ createdAt: -1 })
+      .populate({
+        path: "user",
+        select: "-password",
+      })
+      .populate({
+        path: "comments.user",
+        select: "-password",
+      });
+    if (posts === 0) return res.status(200).json([]);
+
+    return res.status(200).json(posts);
+  } catch (error) {
+    console.log("Error in getAllPost controller: ", error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const getLikedPosts = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    const likedPosts = await Post.find({
+      _id: { $in: user.likedPosts },
+    })
+      .populate({
+        path: "user",
+        select: "-password",
+      })
+      .populate({
+        path: "comments.user",
+        select: "-password",
+      });
+    res.status(200).json(likedPosts);
+  } catch (error) {
+    console.log("Error in getLikedPost controller: ", error.message);
     res.status(500).json({ error: error.message });
   }
 };
