@@ -35,7 +35,7 @@ const SignUpPage = () => {
 
       const data = await res.json();
 
-      if (data.error) throw new Error(data.error);
+      if (data.error) throw new Error(data?.error || "Something went wrong");
     },
     onSuccess: () => {
       toast.success("Account created successfully!");
